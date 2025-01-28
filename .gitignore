@@ -1,0 +1,20 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Local vscode settings
+.vscode/
+
+# We aren't shipping to production, ignore the lock file
+uv.lock
+
+# In case we added any files here
+*.csv
+*.pdf

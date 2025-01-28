@@ -1,0 +1,20 @@
+[project]
+name = "amexpdf"
+version = "0.1.0"
+description = "Parses American Express PDF invoices and outputs transactions."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "click>=8.1.8",
+    "pypdf>=5.2.0",
+]
+
+[project.scripts]
+amexpdf = "amexpdf.main:main"
+
+[dependency-groups]
+dev = [
+    "ipykernel>=6.29.5",
+    "pytest>=8.3.4",
+    "ruff>=0.9.3",
+]
