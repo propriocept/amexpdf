@@ -63,8 +63,9 @@ def parse_transactions(text):
         transaction_amounts.pop(1)
         transaction_amounts.pop(-1)
         transaction_amounts.pop(-1)
-        max_amount = max(transaction_amounts, key=lambda x: float(x))
-        transaction_amounts.remove(max_amount)
+        if transaction_amounts:
+            min_amount = min(transaction_amounts, key=lambda x: float(x))
+            transaction_amounts.remove(min_amount)
 
     assert len(dates) == len(transaction_names) == len(transaction_amounts), (
         f"{len(dates)=}, {len(transaction_names)=}, {len(transaction_amounts)=}"

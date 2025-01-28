@@ -109,5 +109,19 @@ def test_parse_transactions_positive_and_negative_amounts():
     assert transactions[1] == ("02.01.21", "Transaction 2", "-2000.00")
 
 
+def test_parse_transactions_remove_largest():
+    text = (
+        "01.01.21 01.01.21 Transaction 1\n1.000,00\n"
+        "Not a real transaction\n2.000,00\n"
+        "Not a real transaction\n5.000,00\n"
+        "Not a real transaction\n1.000,00\n"
+        "Not a real transaction\n2.000,00\n"
+    )
+    transactions = parse_transactions(text)
+
+    assert len(transactions) == 1
+    assert transactions[0] == ("01.01.21", "Transaction 1", "-1000.00")
+
+
 if __name__ == "__main__":
     pytest.main()
