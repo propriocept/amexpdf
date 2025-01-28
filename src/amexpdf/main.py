@@ -48,20 +48,17 @@ def parse_transactions(text):
         elif re.match(r"-?\d{1,3}(\.\d{3})*,\d{2}$", line):
             transaction_amounts.append(line)
 
-    # Let's just convert the numbers to proper floats, and then back again to strings with non-european decimal separators.
+    # Let's just convert to non-european decimal separators.
     transaction_amounts = [
         amount.replace(".", "").replace(",", ".") for amount in transaction_amounts
     ]
-    transaction_amounts_float = [float(amount) for amount in transaction_amounts]
-    # Include commas as thousands separators.
-    transaction_amounts = [f"{amount:,.2f}" for amount in transaction_amounts_float]
 
     # Remove the second, and last two transaction amounts as they are not transactions.
     if len(transaction_amounts) > 2:
         transaction_amounts.pop(1)
         transaction_amounts.pop(-1)
         transaction_amounts.pop(-1)
-        max_amount = max(transaction_amounts, key=lambda x: float(x.replace(",", "")))
+        max_amount = max(transaction_amounts, key=lambda x: float(x))
         transaction_amounts.remove(max_amount)
 
     assert len(dates) == len(transaction_names) == len(transaction_amounts), (
@@ -82,7 +79,7 @@ def main(pdf_path, csv_output):
 
     with open(csv_output, "w", newline="") as csvfile:
         fieldnames = ["Date", "Name", "Amount"]
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames, delimiter=";")
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames, delimiter=",")
 
         writer.writeheader()
         for date, name, amount in transactions:
