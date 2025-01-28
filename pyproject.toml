@@ -15,6 +15,7 @@ amexpdf = "amexpdf.main:main"
 [dependency-groups]
 dev = [
     "ipykernel>=6.29.5",
+    "pyright>=1.1.392.post0",
     "pytest>=8.3.4",
     "ruff>=0.9.3",
 ]

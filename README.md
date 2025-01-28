@@ -41,4 +41,5 @@ uv pip install -e .
 To run the tests afer installing, use:
 ```bash
 uv run pytest
+uv run pyright
 ```
