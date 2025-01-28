@@ -7,7 +7,7 @@ AmexPDF is a Python tool to extract transaction information from American Expres
 To install, run:
 ```bash
 uv build
-python -m pip install .
+uv tool install .
 ```
 
 ## Usage
