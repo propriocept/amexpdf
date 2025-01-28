@@ -53,6 +53,11 @@ def parse_transactions(text):
         amount.replace(".", "").replace(",", ".") for amount in transaction_amounts
     ]
 
+    # Convert positive numbers to negative numbers and negative numbers to positive numbers
+    transaction_amounts = [
+        f"-{amount}" if float(amount) > 0 else f"{abs(float(amount)):.2f}" for amount in transaction_amounts
+    ]
+
     # Remove the second, and last two transaction amounts as they are not transactions.
     if len(transaction_amounts) > 2:
         transaction_amounts.pop(1)

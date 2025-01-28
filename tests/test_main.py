@@ -17,7 +17,7 @@ def test_extract_transactions(mock_pdf_reader, mock_file):
     transactions = extract_transactions("fake_path.pdf")
 
     assert len(transactions) == 1
-    assert transactions[0] == ("01.01.21", "Transaction 1", "-1000.00")
+    assert transactions[0] == ("01.01.21", "Transaction 1", "1000.00")
 
 
 def test_parse_transactions():
@@ -25,14 +25,14 @@ def test_parse_transactions():
     transactions = parse_transactions(text)
 
     assert len(transactions) == 1
-    assert transactions[0] == ("01.01.21", "Transaction 1", "-1000.00")
+    assert transactions[0] == ("01.01.21", "Transaction 1", "1000.00")
 
 
 @patch("amexpdf.main.extract_transactions")
 @patch("builtins.open", new_callable=mock_open)
 def test_main(mock_file, mock_extract_transactions):
     mock_extract_transactions.return_value = [
-        ("01.01.21", "Transaction 1", "-1000.00")
+        ("01.01.21", "Transaction 1", "1000.00")
     ]
 
     runner = CliRunner()
@@ -55,8 +55,8 @@ def test_extract_transactions_multiple(mock_pdf_reader, mock_file):
     transactions = extract_transactions("fake_path.pdf")
 
     assert len(transactions) == 2
-    assert transactions[0] == ("01.01.21", "Transaction 1", "-1000.00")
-    assert transactions[1] == ("02.01.21", "Transaction 2", "-2000.00")
+    assert transactions[0] == ("01.01.21", "Transaction 1", "1000.00")
+    assert transactions[1] == ("02.01.21", "Transaction 2", "2000.00")
 
 
 def test_parse_transactions_multiple():
@@ -67,8 +67,8 @@ def test_parse_transactions_multiple():
     transactions = parse_transactions(text)
 
     assert len(transactions) == 2
-    assert transactions[0] == ("01.01.21", "Transaction 1", "-1000.00")
-    assert transactions[1] == ("02.01.21", "Transaction 2", "-2000.00")
+    assert transactions[0] == ("01.01.21", "Transaction 1", "1000.00")
+    assert transactions[1] == ("02.01.21", "Transaction 2", "2000.00")
 
 
 @patch("amexpdf.main.extract_transactions")
@@ -93,8 +93,8 @@ def test_parse_transactions_ignore_interest_rate():
     transactions = parse_transactions(text)
 
     assert len(transactions) == 2
-    assert transactions[0] == ("01.01.21", "Transaction 1", "-1000.00")
-    assert transactions[1] == ("02.01.21", "Transaction 2", "-2000.00")
+    assert transactions[0] == ("01.01.21", "Transaction 1", "1000.00")
+    assert transactions[1] == ("02.01.21", "Transaction 2", "2000.00")
 
 
 def test_parse_transactions_positive_and_negative_amounts():
@@ -105,8 +105,8 @@ def test_parse_transactions_positive_and_negative_amounts():
     transactions = parse_transactions(text)
 
     assert len(transactions) == 2
-    assert transactions[0] == ("01.01.21", "Transaction 1", "-1000.00")
-    assert transactions[1] == ("02.01.21", "Transaction 2", "2000.00")
+    assert transactions[0] == ("01.01.21", "Transaction 1", "1000.00")
+    assert transactions[1] == ("02.01.21", "Transaction 2", "-2000.00")
 
 
 if __name__ == "__main__":
