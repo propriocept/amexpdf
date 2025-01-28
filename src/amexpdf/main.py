@@ -77,7 +77,7 @@ def main(pdf_path, csv_output):
 
     with open(csv_output, "w", newline="") as csvfile:
         fieldnames = ["Date", "Name", "Amount"]
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames, delimiter=";")
 
         writer.writeheader()
         for date, name, amount in transactions:
