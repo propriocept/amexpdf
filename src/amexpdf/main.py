@@ -25,10 +25,10 @@ def extract_transactions(pdf_path):
 
 
 def parse_transactions(text):
-    out = []
-    dates = []
-    transaction_names = []
-    transaction_amounts = []
+    out: list[tuple[str, str, str]] = []
+    dates: list[str] = []
+    transaction_names: list[str] = []
+    transaction_amounts: list[str] = []
 
     for line in text.split("\n"):
         # If it is the transaction name, the line starts with two columns as dates in DD.MM.YY format
@@ -48,15 +48,20 @@ def parse_transactions(text):
         elif re.match(r"-?\d{1,3}(\.\d{3})*,\d{2}$", line):
             transaction_amounts.append(line)
 
+    # Let's just convert the numbers to proper floats, and then back again to strings with non-european decimal separators.
+    transaction_amounts = [
+        amount.replace(".", "").replace(",", ".") for amount in transaction_amounts
+    ]
+    transaction_amounts_float = [float(amount) for amount in transaction_amounts]
+    # Include commas as thousands separators.
+    transaction_amounts = [f"{amount:,.2f}" for amount in transaction_amounts_float]
+
     # Remove the second, and last two transaction amounts as they are not transactions.
     if len(transaction_amounts) > 2:
         transaction_amounts.pop(1)
         transaction_amounts.pop(-1)
         transaction_amounts.pop(-1)
-        max_amount = max(
-            transaction_amounts,
-            key=lambda x: float(x.replace(".", "").replace(",", ".")),
-        )
+        max_amount = max(transaction_amounts, key=lambda x: float(x))
         transaction_amounts.remove(max_amount)
 
     assert len(dates) == len(transaction_names) == len(transaction_amounts), (
