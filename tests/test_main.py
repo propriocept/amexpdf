@@ -2,7 +2,7 @@
 
 import pytest
 from unittest.mock import patch, mock_open, MagicMock
-from amexpdf.main import extract_transactions, parse_transactions, main
+from amexpdf.main import extract_transactions, parse_transactions, main, extract_dates_and_names, extract_and_transform_amounts, validate_transactions
 from click.testing import CliRunner
 
 
@@ -20,7 +20,36 @@ def test_extract_transactions(mock_pdf_reader, mock_file):
     assert transactions[0] == ("01.01.21", "Transaction 1", "1000.00")
 
 
-def test_parse_transactions():
+def test_extract_dates_and_names():
+    text = "01.01.21 01.01.21 Transaction 1\n02.01.21 02.01.21 Transaction 2\n"
+    dates, names = extract_dates_and_names(text)
+
+    assert len(dates) == 2
+    assert dates[0] == "01.01.21"
+    assert names[0] == "Transaction 1"
+    assert dates[1] == "02.01.21"
+    assert names[1] == "Transaction 2"
+
+def test_extract_and_transform_amounts():
+    text = "-1.000,00\n2.000,00\n"
+    amounts = extract_and_transform_amounts(text)
+
+    assert len(amounts) == 2
+    assert amounts[0] == "1000.00"
+    assert amounts[1] == "-2000.00"
+
+def test_validate_transactions():
+    dates = ["01.01.21", "02.01.21"]
+    names = ["Transaction 1", "Transaction 2"]
+    amounts = ["1000.00", "-2000.00"]
+
+    # This should not raise an assertion error
+    validate_transactions(dates, names, amounts)
+
+    # Test with mismatched lengths
+    with pytest.raises(AssertionError):
+        validate_transactions(dates, names, ["1000.00"])
+
     text = "01.01.21 01.01.21 Transaction 1\n-1.000,00\n"
     transactions = parse_transactions(text)
 
@@ -87,7 +116,7 @@ def test_main_no_transactions(mock_file, mock_extract_transactions):
 def test_parse_transactions_ignore_interest_rate():
     text = (
         "01.01.21 01.01.21 Transaction 1\n-1.000,00\n"
-        "Interest rate 1,5%\n"
+        "01.01.21 Interest rate 1,5%\n"
         "02.01.21 02.01.21 Transaction 2\n-2.000,00\n"
     )
     transactions = parse_transactions(text)

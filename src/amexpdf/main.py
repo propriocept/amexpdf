@@ -24,41 +24,35 @@ def extract_transactions(pdf_path):
     return transactions
 
 
-def parse_transactions(text):
-    out: list[tuple[str, str, str]] = []
-    dates: list[str] = []
-    transaction_names: list[str] = []
-    transaction_amounts: list[str] = []
+def extract_dates_and_names(text):
+    dates = []
+    transaction_names = []
 
     for line in text.split("\n"):
-        # If it is the transaction name, the line starts with two columns as dates in DD.MM.YY format
-        # Collect the transaction date and name using regex.
         if re.match(r".*\d{2}\.\d{2}\.\d{2} \d{2}\.\d{2}\.\d{2}", line):
             date, _, name = line.split(" ", maxsplit=2)
-            # Remove all letters from the date string
             date = re.sub(r"[a-zA-Z]", "", date)
             dates.append(date)
             transaction_names.append(name)
-        # Skip the line if it contains an interest rate. It is not a transaction.
-        # An interest rate is a number with a comma as the decimal separator and a percentage sign.
-        elif re.match(r".*\d+,\d+%", line):
-            continue
-        # The transaction amount line contains only a number, with a decimal point as a separator for thousands, and a comma as the decimal separator.
-        # It can be negative or positive.
-        elif re.match(r"-?\d{1,3}(\.\d{3})*,\d{2}$", line):
+
+    return dates, transaction_names
+
+
+def extract_and_transform_amounts(text):
+    transaction_amounts = []
+
+    for line in text.split("\n"):
+        if re.match(r"-?\d{1,3}(\.\d{3})*,\d{2}$", line):
             transaction_amounts.append(line)
 
-    # Let's just convert to non-european decimal separators.
     transaction_amounts = [
         amount.replace(".", "").replace(",", ".") for amount in transaction_amounts
     ]
 
-    # Convert positive numbers to negative numbers and negative numbers to positive numbers
     transaction_amounts = [
         f"-{amount}" if float(amount) > 0 else f"{abs(float(amount)):.2f}" for amount in transaction_amounts
     ]
 
-    # Remove the second, and last two transaction amounts as they are not transactions.
     if len(transaction_amounts) > 2:
         transaction_amounts.pop(1)
         transaction_amounts.pop(-1)
@@ -67,14 +61,21 @@ def parse_transactions(text):
             min_amount = min(transaction_amounts, key=lambda x: float(x))
             transaction_amounts.remove(min_amount)
 
+    return transaction_amounts
+
+
+def validate_transactions(dates, transaction_names, transaction_amounts):
     assert len(dates) == len(transaction_names) == len(transaction_amounts), (
         f"{len(dates)=}, {len(transaction_names)=}, {len(transaction_amounts)=}"
     )
 
-    for date, name, amount in zip(dates, transaction_names, transaction_amounts):
-        out.append((date, name, amount))
 
-    return out
+def parse_transactions(text):
+    dates, transaction_names = extract_dates_and_names(text)
+    transaction_amounts = extract_and_transform_amounts(text)
+    validate_transactions(dates, transaction_names, transaction_amounts)
+
+    return [(date, name, amount) for date, name, amount in zip(dates, transaction_names, transaction_amounts)]
 
 
 @click.command()
